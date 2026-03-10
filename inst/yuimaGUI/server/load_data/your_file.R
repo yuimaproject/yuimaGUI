@@ -91,7 +91,7 @@ output$yourFilePreviewText <- renderText ({
 })
 
 ###Display Preview of file to upload
-output$yourFilePreview <- DT::renderDataTable(options=list(scrollX=TRUE, scrollY = 250, scrollCollapse = FALSE, deferRender = TRUE, dom = 'frtiS'), extensions = 'Scroller', selection = "none", rownames = TRUE, {
+output$yourFilePreview <- DT::renderDataTable(options=list(scrollX = TRUE, scrollY = 250, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtiS'), extensions = 'Scroller', selection = "none", rownames = TRUE, {
   if (!is.null(input$yourFile$datapath))
     return (fileUp())
 })
@@ -111,7 +111,7 @@ observeEvent(input$yourFileGo, priority = 1, {
 })
 
 ###Display data available
-output$database2 <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
+output$database2 <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
   if (length(yuimaGUItable$series)!=0)
     return (yuimaGUItable$series)
 })

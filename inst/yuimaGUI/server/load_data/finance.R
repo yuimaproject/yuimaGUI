@@ -10,7 +10,7 @@ observeEvent(input$finDataGo, priority = 1, {
     withProgress(message = 'Loading: ', value = 0, {
       for (i in symb){
         incProgress(1/length(symb), detail = i)
-        x <- try(window(getSymbols(i, src = input$sources ,auto.assign = FALSE), start = input$dR[1], end = input$dR[2]))
+        x <- try(window(getSymbols(i, src = input$sources, auto.assign = FALSE, from = input$dR[1], to = input$dR[2])))
         if (class(x)[1]=="try-error")
           err <- cbind(err,i)
         else {
@@ -30,7 +30,7 @@ observeEvent(input$finDataGo, priority = 1, {
 })
 
 ###Display available data
-output$database1 <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
+output$database1 <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, scroller = TRUE, deferRender = TRUE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
   if (length(yuimaGUItable$series)!=0)
     return(yuimaGUItable$series)
 })

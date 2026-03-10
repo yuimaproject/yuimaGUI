@@ -34,7 +34,7 @@ sidebar<-dashboardSidebar(
     ),
     hr(),br(),
     div(id="theyuimaprojct",
-        a("User Guide", href="https://yuimaproject.com/wp-content/uploads/2018/08/manual_yuimagui_v1-02.pdf", target="_blank"),br(),
+        a("User Guide", href="https://yuimaproject.com/wp-content/uploads/2019/03/manual_yuimagui_v1-02.pdf", target="_blank"),br(),
         br()
     )
   )

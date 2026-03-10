@@ -15,7 +15,7 @@
 #' 
 #' @export
 #' 
-yuimaGUI <- function(theme = "black") {
+yuimaGUI <- function(theme = "white") {
 
   if(!(theme %in% c("black", "white"))) stop ("Theme not supported. Only 'black' or 'white' themes are available.")
   print("Please wait while loading...")
