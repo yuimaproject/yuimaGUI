@@ -1,5 +1,5 @@
 ###Display available data
-output$changepoint_table_select <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
+output$changepoint_table_select <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
   if (length(yuimaGUItable$series)==0){
     NoData <- data.frame("Symb"=NA,"Please load some data first"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -21,7 +21,7 @@ observeEvent(input$changepoint_button_selectAll, priority = 1, {
 })
 
 ###Display Selected Data
-output$changepoint_table_selected <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
+output$changepoint_table_selected <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
   if (length(rownames(seriesToChangePoint$table))==0){
     NoData <- data.frame("Symb"=NA,"Select from table beside"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -139,12 +139,15 @@ output$text_ChangePointInfo <- renderUI({
     )
   }
 })
-
+outputOptions(output, "text_ChangePointInfo", suspendWhenHidden = FALSE)
 
 output$table_ChangePointInfo <- renderTable(digits = 4, {
-  table <- data.frame(Time = as.character(yuimaGUIdata$cp[[input$changepoint_symb]]$tau), "p.value" = yuimaGUIdata$cp[[input$changepoint_symb]]$pvalue, check.names = FALSE, row.names = yuimaGUIdata$cp[[input$changepoint_symb]]$tau)
-  return(table[order(rownames(table), decreasing = TRUE),])
+  if(!is.null(input$changepoint_symb)){
+    table <- data.frame(Time = as.character(yuimaGUIdata$cp[[input$changepoint_symb]]$tau), "p.value" = yuimaGUIdata$cp[[input$changepoint_symb]]$pvalue, check.names = FALSE, row.names = yuimaGUIdata$cp[[input$changepoint_symb]]$tau)
+    return(table[order(rownames(table), decreasing = TRUE),])
+  }
 })
+outputOptions(output, "table_ChangePointInfo", suspendWhenHidden = FALSE)
 
 observeEvent(input$changepoint_button_delete_estimated, {
   yuimaGUIdata$cp[[input$changepoint_symb]] <<- NULL

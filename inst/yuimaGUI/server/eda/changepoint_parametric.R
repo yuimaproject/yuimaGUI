@@ -1,5 +1,5 @@
 ###Display available data
-output$parametric_changepoint_table_select <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
+output$parametric_changepoint_table_select <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
   if (length(yuimaGUItable$series)==0){
     NoData <- data.frame("Symb"=NA,"Please load some data first"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -21,7 +21,7 @@ observeEvent(input$parametric_changepoint_button_selectAll, priority = 1, {
 })
 
 ###Display Selected Data
-output$parametric_changepoint_table_selected <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
+output$parametric_changepoint_table_selected <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
   if (length(rownames(parametric_seriesToChangePoint$table))==0){
     NoData <- data.frame("Symb"=NA,"Select from table beside"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -104,6 +104,7 @@ observe({
           grid(col="grey")
         }
       })
+      outputOptions(output, "parametric_selectRange", suspendWhenHidden = FALSE)
       output$parametric_selectRangeReturns <- renderPlot({
         if (symb %in% rownames(yuimaGUItable$series) & (symb %in% rownames(parametric_seriesToChangePoint$table)) & condition){
           par(bg="black")
@@ -112,6 +113,7 @@ observe({
           grid(col="grey")
         }
       })
+      outputOptions(output, "parametric_selectRangeReturns", suspendWhenHidden = FALSE)
     }
 })
 
@@ -119,6 +121,7 @@ observe({
 output$parametric_plotsRangeSeries <- renderUI({
   selectInput("parametric_plotsRangeSeries", label = "Series", choices = rownames(parametric_seriesToChangePoint$table), selected = input$parametric_plotsRangeSeries)
 })
+outputOptions(output, "parametric_plotsRangeSeries", suspendWhenHidden = FALSE)
 
 ###Choose Range input set to "Select range from charts" if charts have been brushed
 output$parametric_chooseRange <- renderUI({
@@ -126,6 +129,7 @@ output$parametric_chooseRange <- renderUI({
   if (!is.null(parametric_range_selectRange$x)) sel <- "selected"
   selectInput("parametric_chooseRange", label = "Range", choices = c("Full Range" = "full", "Select Range from Charts" = "selected", "Specify Range" = "specify"), selected = sel)
 })
+outputOptions(output, "parametric_chooseRange", suspendWhenHidden = FALSE)
 
 output$parametric_chooseRange_specify <- renderUI({
   if(!is.null(input$parametric_plotsRangeSeries)) {
@@ -139,7 +143,7 @@ output$parametric_chooseRange_specify <- renderUI({
       return(dateRangeInput("parametric_chooseRange_specify_date", start = start(data), end = end(data), label = "Specify Range"))
   }
 })
-
+outputOptions(output, "parametric_chooseRange_specify", suspendWhenHidden = FALSE)
 
 observe({
   shinyjs::toggle(id = "parametric_chooseRange_specify", condition = (input$parametric_chooseRange)=="specify")
@@ -275,14 +279,19 @@ observe({
   shinyjs::toggle(id="parametric_modal_body", condition = nrow(parametric_seriesToChangePoint$table)!=0)
   shinyjs::toggle(id="parametric_modal_errorMessage", condition = nrow(parametric_seriesToChangePoint$table)==0)
 })
+
 output$parametric_modal_series <- renderUI({
   if (nrow(parametric_seriesToChangePoint$table)!=0)
     selectInput(inputId = "parametric_modal_series", label = "Series", choices = rownames(parametric_seriesToChangePoint$table))
 })
+outputOptions(output, "parametric_modal_series", suspendWhenHidden = FALSE)
+
 output$parametric_modal_delta <- renderUI({
   if (!is.null(input$parametric_modal_series))
     return (numericInput("parametric_modal_delta", label = paste("delta", input$parametric_modal_series), value = yuimaGUIsettings$delta[[input$parametric_modal_series]]))
 })
+outputOptions(output, "parametric_modal_delta", suspendWhenHidden = FALSE)
+
 output$parametric_modal_toLog <- renderUI({
   if (!is.null(input$parametric_modal_model) & !is.null(input$parametric_modal_series)){
     choices <- FALSE
@@ -290,10 +299,14 @@ output$parametric_modal_toLog <- renderUI({
     return (selectInput("parametric_modal_toLog", label = "Convert to log", choices = choices, selected = yuimaGUIsettings$toLog[[input$parametric_modal_series]]))
   }
 })
+outputOptions(output, "parametric_modal_toLog", suspendWhenHidden = FALSE)
+
 output$parametric_modal_model <- renderUI({
   if(!is.null(input$parametric_changepoint_model))
     selectInput(inputId = "parametric_modal_model", label = "Model", choices = input$parametric_changepoint_model)
 })
+outputOptions(output, "parametric_modal_model", suspendWhenHidden = FALSE)
+
 output$parametric_modal_parameter <- renderUI({
   if (!is.null(input$parametric_modal_model)){
     mod <- setModelByName(input$parametric_modal_model, jumps = NA, AR_C = NA, MA_C = NA)
@@ -301,10 +314,14 @@ output$parametric_modal_parameter <- renderUI({
     selectInput(inputId = "parametric_modal_parameter", label = "Parameter", choices = par)
   }
 })
+outputOptions(output, "parametric_modal_parameter", suspendWhenHidden = FALSE)
+
 output$parametric_modal_start <- renderUI({
   if (!is.null(input$parametric_modal_model) & !is.null(input$parametric_modal_series) & !is.null(input$parametric_modal_parameter))
     numericInput(inputId = "parametric_modal_start", label = "start", value = yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["start"]][[input$parametric_modal_parameter]])
 })
+outputOptions(output, "parametric_modal_start", suspendWhenHidden = FALSE)
+
 output$parametric_modal_startMin <- renderUI({
   input$parametric_modal_button_applyDelta
   input$parametric_modal_button_applyAllDelta
@@ -312,6 +329,8 @@ output$parametric_modal_startMin <- renderUI({
     if (is.na(input$parametric_modal_start))
       numericInput(inputId = "parametric_modal_startMin", label = "start: Min", value = yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["startMin"]][[input$parametric_modal_parameter]])
 })
+outputOptions(output, "parametric_modal_startMin", suspendWhenHidden = FALSE)
+
 output$parametric_modal_startMax <- renderUI({
   input$parametric_modal_button_applyDelta
   input$parametric_modal_button_applyAllDelta
@@ -319,28 +338,39 @@ output$parametric_modal_startMax <- renderUI({
     if (is.na(input$parametric_modal_start))
       numericInput(inputId = "parametric_modal_startMax", label = "start: Max", value = yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["startMax"]][[input$parametric_modal_parameter]])
 })
+outputOptions(output, "parametric_modal_startMax", suspendWhenHidden = FALSE)
+
 output$parametric_modal_lower <- renderUI({
   if (!is.null(input$parametric_modal_model) & !is.null(input$parametric_modal_series) & !is.null(input$parametric_modal_parameter))
     if (input$parametric_modal_method=="L-BFGS-B" | input$parametric_modal_method=="Brent")
       numericInput("parametric_modal_lower", label = "lower", value = yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["lower"]][[input$parametric_modal_parameter]])
 })
+outputOptions(output, "parametric_modal_lower", suspendWhenHidden = FALSE)
+
 output$parametric_modal_upper <- renderUI({
   if (!is.null(input$parametric_modal_model) & !is.null(input$parametric_modal_series) & !is.null(input$parametric_modal_parameter))
     if (input$parametric_modal_method=="L-BFGS-B" | input$parametric_modal_method=="Brent")
       numericInput("parametric_modal_upper", label = "upper", value = yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["upper"]][[input$parametric_modal_parameter]])
 })
+outputOptions(output, "parametric_modal_upper", suspendWhenHidden = FALSE)
+
 output$parametric_modal_method <- renderUI({
   if (!is.null(input$parametric_modal_model) & !is.null(input$parametric_modal_series))
     selectInput("parametric_modal_method", label = "method", choices = c("L-BFGS-B", "Nelder-Mead", "BFGS", "CG", "SANN", "Brent"), selected = yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["method"]])
 })
+outputOptions(output, "parametric_modal_method", suspendWhenHidden = FALSE)
+
 output$parametric_modal_trials <- renderUI({
   if (!is.null(input$parametric_modal_model) & !is.null(input$parametric_modal_series) & !is.null(input$parametric_modal_method))
     numericInput("parametric_modal_trials", label = "trials", min = 1, value = ifelse(input$parametric_modal_method=="SANN" & yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["method"]]!="SANN",1,yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["trials"]]))
 })
+outputOptions(output, "parametric_modal_trials", suspendWhenHidden = FALSE)
+
 output$parametric_modal_seed <- renderUI({
   if (!is.null(input$parametric_modal_model) & !is.null(input$parametric_modal_series))
     numericInput("parametric_modal_seed", label = "seed", min = 1, value = yuimaGUIsettings$estimation[[input$parametric_modal_model]][[input$parametric_modal_series]][["seed"]])
 })
+outputOptions(output, "parametric_modal_seed", suspendWhenHidden = FALSE)
 
 
 
@@ -470,37 +500,46 @@ output$parametric_changepoint_info <- renderUI({
 })
 
 output$parametric_changepoint_modal_info_text <- renderUI({
-  info <- yuimaGUIdata$cpYuima[[input$parametric_changepoint_symb]]$info
-  div(
-    h3(input$parametric_changepoint_symb, " - " , info$model, class = "hModal"),
-    h4(
-      em("series to log:"), info$toLog, br(),
-      em("method:"), info$method, br(),
-      em("trials:"), info$trials, br(),
-      em("seed:"), info$seed, br(), class = "hModal"
-    ),
-    align="center")
+  if(!is.null(input$parametric_changepoint_symb)){
+    info <- yuimaGUIdata$cpYuima[[input$parametric_changepoint_symb]]$info
+    div(
+      h3(input$parametric_changepoint_symb, " - " , info$model, class = "hModal"),
+      h4(
+        em("series to log:"), info$toLog, br(),
+        em("method:"), info$method, br(),
+        em("trials:"), info$trials, br(),
+        em("seed:"), info$seed, br(), class = "hModal"
+      ),
+      align="center")
+  }
 })
+outputOptions(output, "parametric_changepoint_modal_info_text", suspendWhenHidden = FALSE)
 
 output$parametric_changepoint_modal_info_tableL <- renderTable(rownames = T, {
-  cp <- yuimaGUIdata$cpYuima[[input$parametric_changepoint_symb]]
-  tL <- summary(cp$qmleL)@coef
-  for (i in 1:nrow(tL)){
-    tL[i,"Estimate"] <- signifDigits(value = tL[i,"Estimate"], sd = tL[i,"Std. Error"])
-    tL[i,"Std. Error"] <- signifDigits(value = tL[i,"Std. Error"], sd = tL[i,"Std. Error"])
+  if(!is.null(input$parametric_changepoint_symb)){
+    cp <- yuimaGUIdata$cpYuima[[input$parametric_changepoint_symb]]
+    tL <- summary(cp$qmleL)@coef
+    for (i in 1:nrow(tL)){
+      tL[i,"Estimate"] <- signifDigits(value = tL[i,"Estimate"], sd = tL[i,"Std. Error"])
+      tL[i,"Std. Error"] <- signifDigits(value = tL[i,"Std. Error"], sd = tL[i,"Std. Error"])
+    }
+    return(tL)
   }
-  return(tL)
 })
+outputOptions(output, "parametric_changepoint_modal_info_tableL", suspendWhenHidden = FALSE)
 
 output$parametric_changepoint_modal_info_tableR <- renderTable(rownames = T, {
-  cp <- yuimaGUIdata$cpYuima[[input$parametric_changepoint_symb]]
-  tR <- summary(cp$qmleR)@coef
-  for (i in 1:nrow(tR)){
-    tR[i,"Estimate"] <- signifDigits(value = tR[i,"Estimate"], sd = tR[i,"Std. Error"])
-    tR[i,"Std. Error"] <- signifDigits(value = tR[i,"Std. Error"], sd = tR[i,"Std. Error"])
+  if(!is.null(input$parametric_changepoint_symb)){
+    cp <- yuimaGUIdata$cpYuima[[input$parametric_changepoint_symb]]
+    tR <- summary(cp$qmleR)@coef
+    for (i in 1:nrow(tR)){
+      tR[i,"Estimate"] <- signifDigits(value = tR[i,"Estimate"], sd = tR[i,"Std. Error"])
+      tR[i,"Std. Error"] <- signifDigits(value = tR[i,"Std. Error"], sd = tR[i,"Std. Error"])
+    }
+    return(tR)
   }
-  return(tR)
 })
+outputOptions(output, "parametric_changepoint_modal_info_tableR", suspendWhenHidden = FALSE)
 
 
 
