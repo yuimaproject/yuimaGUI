@@ -1,5 +1,5 @@
 ###Display available data
-output$llag_table_select <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
+output$llag_table_select <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
   if (length(yuimaGUItable$series)==0){
     NoData <- data.frame("Symb"=NA,"Please load some data first"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -45,7 +45,7 @@ observeEvent(input$llag_button_selectAll, priority = 1, {
 })
 
 ###Display Selected Data
-output$llag_table_selected <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
+output$llag_table_selected <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
   if (length(rownames(seriesToLeadLag$table))==0){
     NoData <- data.frame("Symb"=NA,"Select from table beside"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -97,7 +97,7 @@ observe({
 
 observeEvent(input$llag_button_startEstimation, {
   closeAlert(session, alertId = "llag_alert_select")
-  if (is.na(input$llag_maxLag) | input$llag_maxLag <= 0)
+  if (is.na(input$llag_maxLag) || input$llag_maxLag <= 0)
     createAlert(session, anchorId = "llag_alert", alertId = "llag_alert_select", content = "Lag max must be greater than zero", style = "warning")
   else {
     series <- rownames(seriesToLeadLag$table)
@@ -110,7 +110,7 @@ observeEvent(input$llag_button_startEstimation, {
         for (i in 2:length(series))
           data <- merge(data, yuimaGUIdata$series[[series[i]]])
         colnames(data) <- series
-        if(type=="Date") {
+        if("Date" %in% type) {
           start <- input$llag_range_date[1]
           end <- input$llag_range_date[2]
         } else {
@@ -119,11 +119,11 @@ observeEvent(input$llag_button_startEstimation, {
         }
         data <- window(data, start = start, end = end)
         if(is.regular(data)){
-          delta <- mode(na.omit(diff(index(data))))
+          delta <- as.numeric(mode(na.omit(diff(index(data)))))
           yuimaData <- setDataGUI(data, delta = delta)
           if(input$llag_type=="llag"){
             res <- try(llag(yuimaData, ci=TRUE, plot=FALSE, grid = seq(from = -input$llag_maxLag, to = input$llag_maxLag, by = delta)))
-            if (class(res)=="try-error")
+            if ("try-error" %in% class(res))
               createAlert(session, anchorId = "llag_alert", alertId = "llag_alert_select", content = "Error in computing lead-lag", style = "error")
             else {
               i <- 1
@@ -144,7 +144,7 @@ observeEvent(input$llag_button_startEstimation, {
             } 
             else 
               res <- try(cce(x = yuimaData, method = input$llag_corr_method)$cormat)
-            if (class(res)=="try-error")
+            if ("try-error" %in% class(res))
               createAlert(session, anchorId = "llag_alert", alertId = "llag_alert_select", content = "Error in computing the correlation matrix", style = "error")
             else {
               i <- 1
