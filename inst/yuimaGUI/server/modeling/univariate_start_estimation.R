@@ -413,7 +413,8 @@ outputOptions(output, "advancedSettingsStartMax", suspendWhenHidden = FALSE)
 
 output$advancedSettingsLower <- renderUI({
   if (#REMOVE# !is.null(input$advancedSettingsFixed) & 
-    !is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) & !is.null(input$advancedSettingsParameter))
+    !is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) 
+    & !is.null(input$advancedSettingsParameter) & !is.null(input$advancedSettingsMethod))
     #REMOVE# if (is.na(input$advancedSettingsFixed))
     if (input$advancedSettingsMethod=="L-BFGS-B" | input$advancedSettingsMethod=="Brent")
       numericInput("advancedSettingsLower", label = "lower", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["lower"]][[input$advancedSettingsParameter]])
@@ -422,7 +423,8 @@ outputOptions(output, "advancedSettingsLower", suspendWhenHidden = FALSE)
 
 output$advancedSettingsUpper <- renderUI({
   if (#REMOVE# !is.null(input$advancedSettingsFixed) & 
-    !is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) & !is.null(input$advancedSettingsParameter))
+    !is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) 
+    & !is.null(input$advancedSettingsParameter) & !is.null(input$advancedSettingsMethod))
     #REMOVE# if (is.na(input$advancedSettingsFixed))
     if (input$advancedSettingsMethod=="L-BFGS-B" | input$advancedSettingsMethod=="Brent")
       numericInput("advancedSettingsUpper", label = "upper", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["upper"]][[input$advancedSettingsParameter]])
