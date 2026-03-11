@@ -53,7 +53,7 @@ output$PrintModelLatex <- renderUI({
 
 
 ###Display available data
-output$database3 <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
+output$database3 <- DT::renderDataTable(options=list(scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', selection = "multiple", rownames = FALSE,{
   if (length(yuimaGUItable$series)==0){
     NoData <- data.frame("Symb"=NA,"Please load some data first"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -75,7 +75,7 @@ observeEvent(input$buttonSelectAll_models_Univariate, priority = 1, {
 })
 
 ###Display Selected Data
-output$database4 <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
+output$database4 <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = FALSE, selection = "multiple",{
   if (nrow(seriesToEstimate$table)==0){
     NoData <- data.frame("Symb"=NA,"Select from table beside"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -150,6 +150,7 @@ observe({
           grid(col="grey")
         }
       })
+      outputOptions(output, "selectRange", suspendWhenHidden = FALSE)
       output$selectRangeReturns <- renderPlot({
         if (symb %in% rownames(yuimaGUItable$series) & (symb %in% rownames(seriesToEstimate$table)) & condition){
           par(bg="black")
@@ -158,6 +159,7 @@ observe({
           grid(col="grey")
         }
       })
+      outputOptions(output, "selectRangeReturns", suspendWhenHidden = FALSE)
     }
 })
 
@@ -165,6 +167,7 @@ observe({
 output$plotsRangeSeries <- renderUI({
   selectInput("plotsRangeSeries", label = "Series", choices = rownames(seriesToEstimate$table), selected = input$plotsRangeSeries)
 })
+outputOptions(output, "plotsRangeSeries", suspendWhenHidden = FALSE)
 
 ###Choose Range input set to "Select range from charts" if charts have been brushed
 output$chooseRange <- renderUI({
@@ -172,6 +175,7 @@ output$chooseRange <- renderUI({
   if (!is.null(range_selectRange$x)) sel <- "selected"
   selectInput("chooseRange", label = "Range", choices = c("Full Range" = "full", "Select Range from Charts" = "selected", "Specify Range" = "specify"), selected = sel)
 })
+outputOptions(output, "chooseRange", suspendWhenHidden = FALSE)
 
 output$chooseRange_specify <- renderUI({
   if(!is.null(input$plotsRangeSeries)) {
@@ -185,7 +189,7 @@ output$chooseRange_specify <- renderUI({
       return(dateRangeInput("chooseRange_specify_date", start = start(data), end = end(data), label = "Specify Range"))
   }
 })
-
+outputOptions(output, "chooseRange_specify", suspendWhenHidden = FALSE)
 
 observe({
   shinyjs::toggle(id = "chooseRange_specify", condition = (input$chooseRange)=="specify")
@@ -335,14 +339,19 @@ observe({
   shinyjs::toggle(id="advancedSettingsAll", condition = valid)
   shinyjs::toggle(id="advancedSettingsErrorMessage", condition = !valid)
 })
+
 output$advancedSettingsSeries <- renderUI({
   if (nrow(seriesToEstimate$table)!=0)
     selectInput(inputId = "advancedSettingsSeries", label = "Series", choices = rownames(seriesToEstimate$table))
 })
+outputOptions(output, "advancedSettingsSeries", suspendWhenHidden = FALSE)
+
 output$advancedSettingsDelta <- renderUI({
   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries))
     return (numericInput("advancedSettingsDelta", label = paste("delta", input$advancedSettingsSeries), value = yuimaGUIsettings$delta[[input$advancedSettingsSeries]], min = 0))
 })
+outputOptions(output, "advancedSettingsDelta", suspendWhenHidden = FALSE)
+
 output$advancedSettingsToLog <- renderUI({
   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries)){
     choices <- FALSE
@@ -350,10 +359,14 @@ output$advancedSettingsToLog <- renderUI({
     return (selectInput("advancedSettingsToLog", label = "Convert to log", choices = choices, selected = yuimaGUIsettings$toLog[[input$advancedSettingsSeries]]))
   }
 })
+outputOptions(output, "advancedSettingsToLog", suspendWhenHidden = FALSE)
+
 output$advancedSettingsModel <- renderUI({
   if(!is.null(input$model))
     selectInput(inputId = "advancedSettingsModel", label = "Model", choices = input$model)
 })
+outputOptions(output, "advancedSettingsModel", suspendWhenHidden = FALSE)
+
 output$advancedSettingsParameter <- renderUI({
   if (!is.null(input$model))
     if (!is.null(input$advancedSettingsModel)){
@@ -362,6 +375,8 @@ output$advancedSettingsParameter <- renderUI({
       selectInput(inputId = "advancedSettingsParameter", label = "Parameter", choices = par)
     }
 })
+outputOptions(output, "advancedSettingsParameter", suspendWhenHidden = FALSE)
+
 #REMOVE# output$advancedSettingsFixed <- renderUI({
 #REMOVE#  if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) & !is.null(input$advancedSettingsParameter))
 #REMOVE#    numericInput(inputId = "advancedSettingsFixed", label = "fixed", value = ifelse(is.null(yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["fixed"]][[input$advancedSettingsParameter]]),NA,yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["fixed"]][[input$advancedSettingsParameter]]))
@@ -372,6 +387,8 @@ output$advancedSettingsStart <- renderUI({
     #REMOVE# if (is.na(input$advancedSettingsFixed))
     numericInput(inputId = "advancedSettingsStart", label = "start", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["start"]][[input$advancedSettingsParameter]])
 })
+outputOptions(output, "advancedSettingsStart", suspendWhenHidden = FALSE)
+
 output$advancedSettingsStartMin <- renderUI({
   input$advancedSettingsButtonApplyDelta
   input$advancedSettingsButtonApplyAllDelta
@@ -381,6 +398,8 @@ output$advancedSettingsStartMin <- renderUI({
       is.na(input$advancedSettingsStart))
       numericInput(inputId = "advancedSettingsStartMin", label = "start: Min", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["startMin"]][[input$advancedSettingsParameter]])
 })
+outputOptions(output, "advancedSettingsStartMin", suspendWhenHidden = FALSE)
+
 output$advancedSettingsStartMax <- renderUI({
   input$advancedSettingsButtonApplyDelta
   input$advancedSettingsButtonApplyAllDelta
@@ -390,6 +409,8 @@ output$advancedSettingsStartMax <- renderUI({
       is.na(input$advancedSettingsStart))
       numericInput(inputId = "advancedSettingsStartMax", label = "start: Max", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["startMax"]][[input$advancedSettingsParameter]])
 })
+outputOptions(output, "advancedSettingsStartMax", suspendWhenHidden = FALSE)
+
 output$advancedSettingsLower <- renderUI({
   if (#REMOVE# !is.null(input$advancedSettingsFixed) & 
     !is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) & !is.null(input$advancedSettingsParameter))
@@ -397,6 +418,8 @@ output$advancedSettingsLower <- renderUI({
     if (input$advancedSettingsMethod=="L-BFGS-B" | input$advancedSettingsMethod=="Brent")
       numericInput("advancedSettingsLower", label = "lower", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["lower"]][[input$advancedSettingsParameter]])
 })
+outputOptions(output, "advancedSettingsLower", suspendWhenHidden = FALSE)
+
 output$advancedSettingsUpper <- renderUI({
   if (#REMOVE# !is.null(input$advancedSettingsFixed) & 
     !is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) & !is.null(input$advancedSettingsParameter))
@@ -404,6 +427,8 @@ output$advancedSettingsUpper <- renderUI({
     if (input$advancedSettingsMethod=="L-BFGS-B" | input$advancedSettingsMethod=="Brent")
       numericInput("advancedSettingsUpper", label = "upper", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["upper"]][[input$advancedSettingsParameter]])
 })
+outputOptions(output, "advancedSettingsUpper", suspendWhenHidden = FALSE)
+
 #REMOVE# output$advancedSettingsJoint <- renderUI({
 #REMOVE#   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries))
 #REMOVE#     selectInput("advancedSettingsJoint", label = "joint", choices = c(FALSE, TRUE), selected = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["joint"]])
@@ -412,6 +437,8 @@ output$advancedSettingsMethod <- renderUI({
   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries))
     selectInput("advancedSettingsMethod", label = "method", choices = c("L-BFGS-B", "Nelder-Mead", "BFGS", "CG", "SANN", "Brent"), selected = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["method"]])
 })
+outputOptions(output, "advancedSettingsMethod", suspendWhenHidden = FALSE)
+
 #REMOVE# output$advancedSettingsAggregation <- renderUI({
 #REMOVE#   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries))
 #REMOVE#     selectInput("advancedSettingsAggregation", label = "aggregation", choices = c(TRUE, FALSE), selected = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["aggregation"]])
@@ -420,19 +447,25 @@ output$advancedSettingsThreshold <- renderUI({
   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries)) if(isolate({input$modelClass})=="Levy process")
     numericInput("advancedSettingsThreshold", label = "threshold", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["threshold"]])
 })
+outputOptions(output, "advancedSettingsThreshold", suspendWhenHidden = FALSE)
+
 output$advancedSettingsTrials <- renderUI({
   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries) & !is.null(input$advancedSettingsMethod))
     numericInput("advancedSettingsTrials", label = "trials", min = 1, value = ifelse(input$advancedSettingsMethod=="SANN" & yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["method"]]!="SANN",1,yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["trials"]]))
 })
+outputOptions(output, "advancedSettingsTrials", suspendWhenHidden = FALSE)
+
 output$advancedSettingsSeed <- renderUI({
   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries))
     numericInput("advancedSettingsSeed", label = "seed", min = 1, value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["seed"]])
 })
+outputOptions(output, "advancedSettingsSeed", suspendWhenHidden = FALSE)
+
 output$advancedSettingsTimeout <- renderUI({
   if (!is.null(input$advancedSettingsModel) & !is.null(input$advancedSettingsSeries))
     numericInput("advancedSettingsTimeout", label = "timeout (s)", value = yuimaGUIsettings$estimation[[input$advancedSettingsModel]][[input$advancedSettingsSeries]][["timeout"]])
 })
-
+outputOptions(output, "advancedSettingsTimeout", suspendWhenHidden = FALSE)
 
 observeEvent(input$advancedSettingsButtonApplyDelta, {
   yuimaGUIsettings$delta[[input$advancedSettingsSeries]] <<- input$advancedSettingsDelta
