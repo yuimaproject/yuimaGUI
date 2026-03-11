@@ -36,6 +36,7 @@ output$multi_SymbolName <- renderText({
 
 ###More Info
 output$multi_text_MoreInfo <- renderUI({
+  if(length(yuimaGUItable$multimodel) == 0 | is.null(multi_rowToPrint$id)) return(NULL)
   id <- unlist(strsplit(rownames(yuimaGUItable$multimodel)[multi_rowToPrint$id], split = " "))
   info <- yuimaGUIdata$multimodel[[id[1]]][[as.numeric(id[2])]]$info
   div(
@@ -60,6 +61,7 @@ output$multi_text_MoreInfo <- renderUI({
 outputOptions(output, "multi_text_MoreInfo", suspendWhenHidden = FALSE)
 
 output$multi_table_MoreInfo <- renderTable(digits=5, rownames = TRUE, {
+  if(length(yuimaGUItable$multimodel) == 0 | is.null(multi_rowToPrint$id)) return(NULL)
   id <- unlist(strsplit(rownames(yuimaGUItable$multimodel)[multi_rowToPrint$id], split = " "))
   info <- yuimaGUIdata$multimodel[[id[1]]][[as.numeric(id[2])]]$info
   if (info$class=="Fractional process") coef <- as.data.frame(yuimaGUIdata$multimodel[[id[1]]][[as.numeric(id[2])]]$qmle)
