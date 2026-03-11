@@ -1,5 +1,5 @@
 ###Display estimated models
-output$multi_databaseModels <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
+output$multi_databaseModels <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
   if (length(yuimaGUItable$multimodel)==0){
     NoData <- data.frame("Symb"=NA,"Here will be stored models you estimate in the previous tabs"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -57,6 +57,7 @@ output$multi_text_MoreInfo <- renderUI({
     align="center"
   )
 })
+outputOptions(output, "multi_text_MoreInfo", suspendWhenHidden = FALSE)
 
 output$multi_table_MoreInfo <- renderTable(digits=5, rownames = TRUE, {
   id <- unlist(strsplit(rownames(yuimaGUItable$multimodel)[multi_rowToPrint$id], split = " "))
@@ -82,7 +83,7 @@ output$multi_table_MoreInfo <- renderTable(digits=5, rownames = TRUE, {
                        "start", "startMin", "startMax", "lower", "upper")
   return(t(table))
 })
-
+outputOptions(output, "multi_table_MoreInfo", suspendWhenHidden = FALSE)
 
 ###Print estimates
 observe({
@@ -119,6 +120,7 @@ observe({
       selectInput("multi_model_modal_model_id", label = "Model ID", choices = choices)
     }
   })
+  outputOptions(output, "multi_model_modal_model_id", suspendWhenHidden = FALSE)
   output$multi_model_modal_series_id <- renderUI({
     if (!is.null(input$multi_model_modal_model_id)){
       id <- unlist(strsplit(input$multi_model_modal_model_id, split = " " , fixed = FALSE))
@@ -129,6 +131,7 @@ observe({
         selectInput("multi_model_modal_series_id", label = "Series", choices = choices)
     }
   })
+  outputOptions(output, "multi_model_modal_series_id", suspendWhenHidden = FALSE)
 })
 
 observe({
@@ -163,14 +166,14 @@ observe({
         mu <- sapply(y$model@model@drift, function(x) eval(x))
         sigma <- do.call(rbind, (lapply(y$model@model@diffusion, FUN = function(x) sapply(x, function(y) eval(y)))))
         sigma_inv <- try(solve(sigma))
-        if(class(sigma_inv)=="try-error"){
+        if("try-error" %in% class(sigma_inv)){
           shinyjs::hide("multi_model_modal_plot_distr")
           output$multi_model_modal_plot_test <- renderUI({
               HTML(paste("<div><h2 class='hModal'>Tool not available for this model.<br/>The diffusion matrix is not invertible.</h2></div>"))
           })
         } else {
           z <- apply(as.matrix((dx-mu*delta)/sqrt(delta)), MARGIN = 1, FUN = function(y) sigma_inv%*%y)
-          if(class(z)=="numeric") z <- t(z)
+          if("numeric" %in% class(z)) z <- t(z)
           if(!is.null(input$multi_model_modal_series_id)) if(nrow(z)>=input$multi_model_modal_series_id){
             z_univ <- data.frame("V1" = as.numeric(z[as.numeric(input$multi_model_modal_series_id),]))
             shinyjs::show("multi_model_modal_plot_distr")
@@ -190,7 +193,7 @@ observe({
             })
             output$multi_model_modal_plot_test <- renderUI({
               ksTest <- try(ks.test(x = z_univ$V1, "pnorm"))
-              if(class(ksTest)!="try-error")
+              if(!"try-error" %in% class(ksTest))
                 HTML(paste("<div><h5 class='hModal'>Kolmogorov-Smirnov p-value (the two distributions coincide): ", format(ksTest$p.value, scientific=T, digits = 2), "</h5></div>"))
             })
           }
