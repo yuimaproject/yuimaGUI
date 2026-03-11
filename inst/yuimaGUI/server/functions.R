@@ -535,7 +535,7 @@ setModelByName <- function(name, jumps = NA, AR_C = NA, MA_C = NA, XinExpr = FAL
 }
 
 getAllParams <- function(mod, class, all = TRUE){
-  if(is(mod)=='yuima' & class!="Point Process") mod <- mod@model
+  if('yuima' %in% is(mod) & !"Point Process" %in% class) mod <- mod@model
   
 	if(all==TRUE){
 		if (class=="Point Process")

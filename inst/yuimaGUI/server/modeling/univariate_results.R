@@ -31,6 +31,7 @@ output$SymbolName <- renderText({
 
 ###More Info
 output$text_MoreInfo <- renderUI({
+  if(length(yuimaGUItable$model) == 0 | is.null(rowToPrint$id)) return(NULL)
   id <- unlist(strsplit(rownames(yuimaGUItable$model)[rowToPrint$id], split = " "))
   info <- yuimaGUIdata$model[[id[1]]][[as.numeric(id[2])]]$info
   div(
@@ -55,6 +56,7 @@ output$text_MoreInfo <- renderUI({
 outputOptions(output, "text_MoreInfo", suspendWhenHidden = FALSE)
 
 output$table_MoreInfo <- renderTable(digits=5, rownames = TRUE, {
+  if(length(yuimaGUItable$model) == 0 | is.null(rowToPrint$id)) return(NULL)
   id <- unlist(strsplit(rownames(yuimaGUItable$model)[rowToPrint$id], split = " "))
   info <- yuimaGUIdata$model[[id[1]]][[as.numeric(id[2])]]$info
   if (info$class=="Fractional process") coef <- as.data.frame(yuimaGUIdata$model[[id[1]]][[as.numeric(id[2])]]$qmle)
