@@ -96,7 +96,7 @@ observe({
       yuimaGUIdata$usr_multisimulation[i] <<- NULL
 })
 
-output$multi_simulate_model_usr_table <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollX=TRUE, scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
+output$multi_simulate_model_usr_table <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollX=TRUE, scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
   table <- data.frame()
   for (i in names(yuimaGUIdata$usr_multisimulation)){
     newRow <- as.data.frame(yuimaGUIdata$usr_multisimulation[[i]])

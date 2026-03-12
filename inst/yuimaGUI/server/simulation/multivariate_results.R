@@ -1,5 +1,5 @@
 ###Create simulations table
-output$multi_simulate_monitor_table <- DT::renderDataTable(options=list(scrollY = 200, scrollX=TRUE, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
+output$multi_simulate_monitor_table <- DT::renderDataTable(options=list(scrollY = 200, scrollX=TRUE, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
   if (length(yuimaGUItable$multisimulation)==0){
     NoData <- data.frame("Symb"=NA,"Here will be stored simulations you run in the previous tabs"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -32,9 +32,11 @@ observeEvent(input$multi_simulate_monitor_button_deleteAll, priority = 1, {
 output$multi_simulate_showSimulation_simID <- renderUI({
   selectInput(inputId = "multi_simulate_showSimulation_simID", label = "Simulation ID", choices = rownames(yuimaGUItable$multisimulation))
 })
+outputOptions(output, "multi_simulate_showSimulation_simID", suspendWhenHidden = FALSE)
 
 multi_observationTime <- reactiveValues(x = numeric())
 observeEvent(input$multi_simulate_showSimulation_simID,{
+  if(is.null(input$multi_simulate_showSimulation_simID) || input$multi_simulate_showSimulation_simID == "") return(NULL)
   id <- unlist(strsplit(input$multi_simulate_showSimulation_simID, split = " "))
   if(!is.na(yuimaGUIdata$multisimulation[[id[1]]][[as.numeric(id[2])]]$trajectory[[1]]))
     multi_observationTime$x <<- as.numeric(end(yuimaGUIdata$multisimulation[[id[1]]][[as.numeric(id[2])]]$trajectory))
@@ -60,6 +62,8 @@ output$multi_simulate_showSimulation_plot_series1 <- renderUI({
       selectInput("multi_simulate_showSimulation_plot_series1", label="y-Axis", choices = choices, selected = choices[1])
     }
 })
+outputOptions(output, "multi_simulate_showSimulation_plot_series1", suspendWhenHidden = FALSE)
+
 output$multi_simulate_showSimulation_plot_series2 <- renderUI({
   if(!is.null(input$multi_simulate_showSimulation_simID))
     if(input$multi_simulate_showSimulation_simID %in% rownames(yuimaGUItable$multisimulation)){
@@ -69,7 +73,7 @@ output$multi_simulate_showSimulation_plot_series2 <- renderUI({
       selectInput("multi_simulate_showSimulation_plot_series2", label="z-Axis", choices = choices, selected = last(choices))
     }
 })
-
+outputOptions(output, "multi_simulate_showSimulation_plot_series2", suspendWhenHidden = FALSE)
 
 observe({
   params_multi_simulate_showSimulation_plot$y <<- input$multi_simulate_showSimulation_plot_series1
@@ -122,8 +126,8 @@ observeEvent(params_multi_simulate_showSimulation_plot$id,{
                 title = y
               )
             )
-            
       })
+      outputOptions(output, "multi_simulate_showSimulation_plot", suspendWhenHidden = FALSE)
     }    
   }
 })
@@ -192,6 +196,7 @@ observeEvent(multi_simulation_hist$values, {
           )
         )
   })
+  outputOptions(output, "multi_simulate_showSimulation_hist", suspendWhenHidden = FALSE)
 }, once = TRUE)
 
 
@@ -207,6 +212,7 @@ output$multi_simulate_showSimulation_hist_text <- renderUI({
                "<div>", multi_simulation_hist$z , "<br/>", "Lower:", qq2[1],"<br/>", "Upper: ", qq2[2], "<br/>", "Mean: ", mean(val2[val2>=qq2[1] & val2<=qq2[2]]), "</div>"))
   }
 })
+outputOptions(output, "multi_simulate_showSimulation_hist_text", suspendWhenHidden = FALSE)
 
 ###Save Trajectory Button
 output$multi_simulate_showSimulation_button_saveTrajectory <- {
