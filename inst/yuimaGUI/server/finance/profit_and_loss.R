@@ -1,6 +1,6 @@
 
 hedging_databaseModels_table <- data.frame()
-output$hedging_databaseModels <- DT::renderDataTable(options=list(scrollY = 200, scrollX = TRUE, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
+output$hedging_databaseModels <- DT::renderDataTable(options=list(scrollY = 200, scrollX = TRUE, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
   if (length(yuimaGUItable$model)==0){
     NoData <- data.frame("Symb"=NA,"Please estimate some models first"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -85,14 +85,14 @@ observeEvent(input$hedging_button_startComputation, {
   else createAlert(session, anchorId = "hedging_alert", alertId = "hedging_alert_selectRow", content = "Please select a model to simulate the evolution of the underlying asset", style = "error")
 })
 
-output$hedging_table_results <- DT::renderDataTable(options=list(scrollX=TRUE, scrollY = 200, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
+output$hedging_table_results <- DT::renderDataTable(options=list(scrollX=TRUE, scrollY = 200, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
   if (length(yuimaGUItable$hedging)==0){
     NoData <- data.frame("Symb"=NA, "Here will be stored simulations you run in the previous tab"=NA, check.names = FALSE)
     return(NoData[-1,])
   }
   return (yuimaGUItable$hedging)
 })
-
+outputOptions(output, "hedging_table_results", suspendWhenHidden = FALSE)
 
 
 
@@ -110,10 +110,13 @@ output$hedging_modal_id <- renderUI({
   if(hedging_values2$number_of_ids>0) 
     selectInput("hedging_modal_id", label = "ID", choices = seq(1, hedging_values2$number_of_ids))
 })
+outputOptions(output, "hedging_modal_id", suspendWhenHidden = FALSE)
 
 output$hedging_modal_id_hidden <- renderUI({
   selectInput("hedging_modal_id_hidden", label = "ID", choices = input$hedging_modal_id, selected = input$hedging_modal_id)
 })
+outputOptions(output, "hedging_modal_id_hidden", suspendWhenHidden = FALSE)
+
 output$hedging_nAss_hedge <- renderUI({
   if (!is.null(input$hedging_modal_id)){
     id <- as.integer(input$hedging_modal_id)
@@ -125,6 +128,8 @@ output$hedging_nAss_hedge <- renderUI({
     }
   }
 })
+outputOptions(output, "hedging_nAss_hedge", suspendWhenHidden = FALSE)
+
 output$hedging_nOptLot_hedge <- renderUI({
   if (!is.null(input$hedging_modal_id)){
     id <- as.integer(input$hedging_modal_id)
@@ -135,6 +140,8 @@ output$hedging_nOptLot_hedge <- renderUI({
     }
   }
 })
+outputOptions(output, "hedging_nOptLot_hedge", suspendWhenHidden = FALSE)
+
 output$hedging_type2 <- renderUI({
   if (!is.null(input$hedging_modal_id)){
     id <- as.integer(input$hedging_modal_id)
@@ -144,6 +151,8 @@ output$hedging_type2 <- renderUI({
     }
   }
 })
+outputOptions(output, "hedging_type2", suspendWhenHidden = FALSE)
+
 output$hedging_strike2 <- renderUI({
   if (!is.null(input$hedging_modal_id)){
     id <- as.integer(input$hedging_modal_id)
@@ -153,6 +162,8 @@ output$hedging_strike2 <- renderUI({
     }
   }
 })
+outputOptions(output, "hedging_strike2", suspendWhenHidden = FALSE)
+
 output$hedging_optMarketPrice2 <- renderUI({
   if (!is.null(input$hedging_modal_id)){
     id <- as.integer(input$hedging_modal_id)
@@ -162,6 +173,7 @@ output$hedging_optMarketPrice2 <- renderUI({
     }
   }
 })
+outputOptions(output, "hedging_optMarketPrice2", suspendWhenHidden = FALSE)
 
 observe({
   id <- input$hedging_modal_id_hidden
@@ -196,6 +208,8 @@ output$hedging_plot_distribution <- renderPlot({
     hist(hedging_values$profits, main = paste(hedging_values$symb,"-",hedging_values$model), xlab = "Profit & Loss", breaks = input$hedging_slider_nBin, col="green", col.axis="grey", col.lab="grey", col.main="grey", fg="black", right = FALSE)
   grid()
 })
+outputOptions(output, "hedging_plot_distribution", suspendWhenHidden = FALSE)
+
 output$hedging_quantiles_text <- renderUI({
   if(!is.null(input$hedging_slider_rangeHist) & !is.null(hedging_values$profits)){
     val <- hedging_values$profits
@@ -203,6 +217,8 @@ output$hedging_quantiles_text <- renderUI({
     HTML(paste("<div>", "Lower:", round(qq[1],0),"<br/>", "Upper: ", round(qq[2],0), "<br/>", "Mean: ", round(mean(val[val>=qq[1] & val<=qq[2]]),0), "</div>"))
   }
 })
+outputOptions(output, "hedging_quantiles_text", suspendWhenHidden = FALSE)
+
 output$hedging_capital_text <- renderUI({
   if (!is.null(input$hedging_modal_id) & !is.null(hedging_values$profits)){
     id <- as.integer(input$hedging_modal_id)
@@ -222,7 +238,7 @@ output$hedging_capital_text <- renderUI({
     }
   }
 })
-
+outputOptions(output, "hedging_capital_text", suspendWhenHidden = FALSE)
 
 observeEvent(input$hedging_button_saveHedging, {
   id <- as.integer(input$hedging_modal_id)
