@@ -4,7 +4,7 @@
 \alias{yuimaGUI}
 \title{User-friendly Interface for the yuima package}
 \usage{
-yuimaGUI(theme = "black")
+yuimaGUI(theme = "white")
 }
 \arguments{
 \item{theme}{GUI theme: "black" or "white".}
