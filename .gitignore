@@ -48,3 +48,4 @@ src/*.so
 
 # Pkgdown
 docs/
+rsconnect/
