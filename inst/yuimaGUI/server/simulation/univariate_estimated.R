@@ -1,4 +1,4 @@
-output$simulate_databaseModels <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
+output$simulate_databaseModels <- DT::renderDataTable(options=list(scrollY = 200, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
   if (length(yuimaGUItable$model)==0){
     NoData <- data.frame("Symb"=NA,"Please estimate some models first"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -37,7 +37,7 @@ observe({
   }
 })
 
-output$simulate_selectedModels <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollX=TRUE, scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
+output$simulate_selectedModels <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollX=TRUE, scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
   if (length(rownames(modelsToSimulate$table))==0){
     NoData <- data.frame("Symb"=NA,"Please select models from the table above"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -67,7 +67,7 @@ observe({
 })
 
 observe({
-  for (modID in rownames(modelsToSimulate$table)[input$simulate_selectedModels_rows_all]){
+  for (modID in rownames(modelsToSimulate$table)){
     if (modID %in% names(yuimaGUIdata$usr_simulation)){
       if (is.null(yuimaGUIsettings$simulation[[modID]]))
         yuimaGUIsettings$simulation[[modID]] <<- list()
@@ -118,28 +118,33 @@ observe({
 output$simulate_modelID <- renderUI({
   selectInput("simulate_modelID", label = "Simulation ID", choices = rownames(modelsToSimulate$table))
 })
+outputOptions(output, "simulate_modelID", suspendWhenHidden = FALSE)
 
 output$simulate_advancedSettings_modelID <- renderUI({
   selectInput("simulate_advancedSettings_modelID", label = "Simulation ID", choices = rownames(modelsToSimulate$table))
 })
+outputOptions(output, "simulate_advancedSettings_modelID", suspendWhenHidden = FALSE)
 
 output$simulate_seed <- renderUI({
   if(!is.null(input$simulate_advancedSettings_modelID))
     numericInput("simulate_seed", label = "RNG seed", step = 1, min = 0, value = yuimaGUIsettings$simulation[[input$simulate_advancedSettings_modelID]][["seed"]])
 })
+outputOptions(output, "simulate_seed", suspendWhenHidden = FALSE)
 
 output$simulate_traj <- renderUI({
   if(!is.null(input$simulate_advancedSettings_modelID))
     selectInput("simulate_traj", label = "Save trajectory", choices = c(TRUE,FALSE), selected = yuimaGUIsettings$simulation[[input$simulate_advancedSettings_modelID]][["traj"]])
 })
+outputOptions(output, "simulate_traj", suspendWhenHidden = FALSE)
 
 output$simulate_nsim <- renderUI({
   if(!is.null(input$simulate_modelID))
     numericInput("simulate_nsim", label = "Number of simulations", value = yuimaGUIsettings$simulation[[input$simulate_modelID]][["nsim"]], min = 1, step = 1)
 })
+outputOptions(output, "simulate_nsim", suspendWhenHidden = FALSE)
 
 output$simulate_nstep <- renderUI({
-  if(!is.null(input$simulate_modelID)){
+  if(!is.null(input$simulate_modelID) && input$simulate_modelID != "" && input$simulate_showSimulation_simID != ""){
     id <- unlist(strsplit(input$simulate_modelID, split = " "))
     if (input$simulate_modelID %in% names(yuimaGUIdata$usr_simulation)){
       numericInput("simulate_nstep", label = "Number of steps per simulation", value = yuimaGUIsettings$simulation[[input$simulate_modelID]][["nstep"]], min = 1, step = 1)
@@ -147,11 +152,13 @@ output$simulate_nstep <- renderUI({
       numericInput("simulate_nstep", label = "Number of steps per simulation", value = yuimaGUIsettings$simulation[[input$simulate_modelID]][["nstep"]], min = 1, step = 1)
   }
 })
+outputOptions(output, "simulate_nstep", suspendWhenHidden = FALSE)
 
 output$simulate_xinit <- renderUI({
   if(!is.null(input$simulate_modelID))
     numericInput("simulate_xinit", label = "Initial value", value = yuimaGUIsettings$simulation[[input$simulate_modelID]][["xinit"]])
 })
+outputOptions(output, "simulate_xinit", suspendWhenHidden = FALSE)
 
 output$simulate_range <- renderUI({
   if(!is.null(input$simulate_modelID)){
@@ -174,6 +181,7 @@ output$simulate_range <- renderUI({
     }
   }
 })
+outputOptions(output, "simulate_range", suspendWhenHidden = FALSE)
 
 observeEvent(input$simulate_button_apply_advancedSettings, {
   yuimaGUIsettings$simulation[[input$simulate_advancedSettings_modelID]][["seed"]] <<- input$simulate_seed

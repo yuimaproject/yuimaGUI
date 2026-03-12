@@ -88,7 +88,7 @@ observe({
       yuimaGUIdata$usr_simulation[i] <<- NULL
 })
 
-output$simulate_model_usr_table <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollX=TRUE, scrollY = 150, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
+output$simulate_model_usr_table <- DT::renderDataTable(options=list(order = list(1, 'desc'), scrollX=TRUE, scrollY = 150, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "multiple",{
   table <- data.frame()
   for (i in names(yuimaGUIdata$usr_simulation)){
     newRow <- as.data.frame(yuimaGUIdata$usr_simulation[[i]])

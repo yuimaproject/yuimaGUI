@@ -1,5 +1,5 @@
 ###Create simulations table
-output$simulate_monitor_table <- DT::renderDataTable(options=list(scrollY = 200, scrollX=TRUE, scrollCollapse = FALSE, deferRender = FALSE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
+output$simulate_monitor_table <- DT::renderDataTable(options=list(scrollY = 200, scrollX=TRUE, scrollCollapse = FALSE, deferRender = TRUE, scroller = TRUE, dom = 'frtS'), extensions = 'Scroller', rownames = TRUE, selection = "single",{
   if (length(yuimaGUItable$simulation)==0){
     NoData <- data.frame("Symb"=NA,"Here will be stored simulations you run in the previous tabs"=NA, check.names = FALSE)
     return(NoData[-1,])
@@ -32,12 +32,15 @@ observeEvent(input$simulate_monitor_button_deleteAll, priority = 1, {
 output$simulate_showSimulation_simID <- renderUI({
   selectInput(inputId = "simulate_showSimulation_simID", label = "Simulation ID", choices = rownames(yuimaGUItable$simulation))
 })
+outputOptions(output, "simulate_showSimulation_simID", suspendWhenHidden = FALSE)
 
 observationTime <- reactiveValues(x = numeric())
 observeEvent(input$simulate_showSimulation_simID,{
-  id <- unlist(strsplit(input$simulate_showSimulation_simID, split = " "))
-  if(!is.na(yuimaGUIdata$simulation[[id[1]]][[as.numeric(id[2])]]$trajectory[[1]]))
-    observationTime$x <<- as.numeric(end(yuimaGUIdata$simulation[[id[1]]][[as.numeric(id[2])]]$trajectory))
+  if(!is.null(input$simulate_showSimulation_simID) && input$simulate_showSimulation_simID != ""){
+    id <- unlist(strsplit(input$simulate_showSimulation_simID, split = " "))
+    if(!is.na(yuimaGUIdata$simulation[[id[1]]][[as.numeric(id[2])]]$trajectory[[1]]))
+      observationTime$x <<- as.numeric(end(yuimaGUIdata$simulation[[id[1]]][[as.numeric(id[2])]]$trajectory))
+  }
 })
 observe({
   if (!is.null(input$simulate_showSimulation_plot_click$x) & !is.null(input$simulate_showSimulation_simID)){
@@ -61,6 +64,7 @@ observe({
             grid(col="grey")
           }
         })
+        outputOptions(output, "simulate_showSimulation_plot", suspendWhenHidden = FALSE)
       }
     }
   }
