@@ -2,8 +2,13 @@ Package: yuimaGUI
 Type: Package
 Title: A Graphical User Interface for the 'yuima' Package
 Version: 1.4.0
-Author: YUIMA Project Team
-Maintainer: Emanuele Guidotti <emanuele.guidotti@usi.ch>
+Authors@R: c(person(given = c("YUIMA", "Project"),
+                      family = "Team",
+                      role = "aut"),
+               person(given = "Emanuele",
+                      family = "Guidotti",
+                      role = "cre",
+                      email = "emanuele.guidotti@usi.ch"))
 Description: Provides a graphical user interface for the 'yuima' package.
 License: GPL-2
 Depends: R(>= 3.0.0) 
