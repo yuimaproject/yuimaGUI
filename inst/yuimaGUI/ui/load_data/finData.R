@@ -19,7 +19,7 @@ tabItem(tabName="finData",
         fluidRow(
           column(6,
                  textInput(inputId="symb", value = NULL,label = "Insert Symbol"),
-                 dateRangeInput(inputId="dR", label = "Download data from", start = "1900-01-01" ,end = Sys.Date()),
+                 dateRangeInput(inputId="dR", label = "Download data from", start = "1900-01-01" , end = Sys.Date() - 1),
                  selectInput(inputId="sources", label = "Source", choices = c("Yahoo (OHLC data)" = "yahoo", "Oanda (Currencies &  Metals)" = "oanda", "Federal Reserve Bank of St. Louis" = "FRED")),
                  tags$button(type="button", id="finDataGo", class = "action-button", em("Load data")),
                  br(),br(),br(),
