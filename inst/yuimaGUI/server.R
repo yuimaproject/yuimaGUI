@@ -40,7 +40,7 @@ server <- function(input, output, session) {
   source("server/simulation/multivariate_non_estimated.R", local = TRUE)
   source("server/simulation/multivariate_results.R", local = TRUE)
   
-  source("server/finance/profit_and_loss.R", local = TRUE)
+  # source("server/finance/profit_and_loss.R", local = TRUE)
   
 }
 

@@ -22,10 +22,10 @@ sidebar<-dashboardSidebar(
              menuSubItem("Univariate", tabName = "simulate"),
              menuSubItem("Multivariate", tabName = "multi_simulate")
              ),
-    hr(),
-    menuItem("Finance", tabName = "finance",
-             menuSubItem("P&L distribution", tabName = "hedging")
-            ),
+    # hr(),
+    # menuItem("Finance", tabName = "finance",
+    #          menuSubItem("P&L distribution", tabName = "hedging")
+    #         ),
     hr(),br(),
     div(id="sessionButtons",
       fluidRow( downloadButton("saveSession", label = "Save Session")),
@@ -60,9 +60,9 @@ body<-dashboardBody(
     source("ui/modeling/multi_models.R", local = TRUE)$value,
     
     source("ui/simulation/univariate.R", local = TRUE)$value,
-    source("ui/simulation/multivariate.R", local = TRUE)$value,
+    source("ui/simulation/multivariate.R", local = TRUE)$value
     
-    source("ui/finance/hedging.R", local = TRUE)$value
+    # source("ui/finance/hedging.R", local = TRUE)$value
   )
 )
 
