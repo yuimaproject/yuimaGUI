@@ -777,20 +777,21 @@ changeBase <- function(table, yuimaGUI, newBase, session = session, choicesUI, a
   style <- "info"
   msg <- NULL
   if (any(outputTable["Std. Error",] %in% c(0, "NA", "NaN", "<NA>", NA, NaN))){
-    msg <- "The estimated model does not satisfy theoretical properties."
+    msg <- "Cannot compute standard errors."
     style <- "warning"
   }
   if (!is.null(temp$conversion)) if (temp$conversion==FALSE) shinyjs::hide(choicesUI)
   if (yuimaGUI$info$class=="COGARCH") {
     capture.output(test <- try(Diagnostic.Cogarch(yuimaGUI$model, param = as.list(coef(yuimaGUI$qmle)))))
-    if (class(test)=="try-error") createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("The estimated model does not satisfy theoretical properties.", temp$msg), style = "warning")
-    else if(test$stationary==FALSE | test$positivity==FALSE) createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("The estimated model does not satisfy theoretical properties.", temp$msg), style = "warning")
+    if (class(test)=="try-error") createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("Cannot check stationarity and positivity of the variance process.", temp$msg), style = "warning")
+    else if(test$positivity==FALSE) createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("The variance process is not strictly positive.", temp$msg), style = "warning")
+    else if(test$stationary==FALSE) createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("The variance process is not stationary", temp$msg), style = "warning")
     else createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste(msg, temp$msg), style = style)
   } 
   else if (yuimaGUI$info$class=="CARMA") {
     test <- try(Diagnostic.Carma(yuimaGUI$qmle))
-    if (class(test)=="try-error") createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("The estimated model does not satisfy theoretical properties.", temp$msg), style = "warning")
-    else if(test==FALSE) createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("The estimated model does not satisfy theoretical properties.", temp$msg), style = "warning")
+    if (class(test)=="try-error") createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("Cannot check stationarity.", temp$msg), style = "warning")
+    else if(test==FALSE) createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste("Carma is not stationary.", temp$msg), style = "warning")
     else createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste(msg, temp$msg), style = style)
   }
   else if (!is.null(temp$msg) | !is.null(msg)) createAlert(session = session, anchorId = anchorId, alertId = alertId, content = paste(msg, temp$msg), style = style)
